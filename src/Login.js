@@ -1,6 +1,6 @@
 import './Login.css';
 import React, { useState } from 'react';
-import { auth } from './firebase';  // Ensure this path is correct
+import { auth } from './firebase';  
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
 function Login() {
@@ -12,7 +12,7 @@ function Login() {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         console.log('Logged in successfully:', userCredential.user);
-        // Redirect or show dashboard
+    
       })
       .catch((error) => {
         setError(error.message);
@@ -21,6 +21,10 @@ function Login() {
 
   return (
     <div>
+      <div className="branding">
+        <h2>SportConnect</h2>
+      </div>
+
       <input 
         type="email" 
         placeholder="Email" 

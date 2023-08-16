@@ -1,6 +1,6 @@
 import './Register.css';
 import React, { useState } from 'react';
-import { auth } from './firebase';  // Ensure this path is correct
+import { auth } from './firebase';  
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 function Register() {
@@ -12,7 +12,6 @@ function Register() {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         console.log('Registered successfully:', userCredential.user);
-        // Redirect or show next steps
       })
       .catch((error) => {
         setError(error.message);
@@ -21,6 +20,10 @@ function Register() {
 
   return (
     <div>
+      <div className="branding">
+          <h2>SportConnect</h2>
+      </div>
+
       <input 
         type="email" 
         placeholder="Email" 
