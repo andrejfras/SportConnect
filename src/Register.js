@@ -21,7 +21,8 @@ function Register() {
   return (
     <div>
       <div className="branding">
-          <h2>SportConnect</h2>
+          <h3>SportConnect</h3>
+          <h1>Register</h1>
       </div>
 
       <input 

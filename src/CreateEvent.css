@@ -1,0 +1,26 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px, 20px, 20px, 20px;
+    width: 1000px;
+    box-sizing: border-box;
+}
+
+
+.content {
+    max-width: 95%;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left; 
+}
+
+textarea {
+    width: 100%;     
+    height: 100px;   
+    padding: 10px;
+    box-sizing: border-box;
+    resize: vertical;  
+    margin-bottom: 15px; 
+}

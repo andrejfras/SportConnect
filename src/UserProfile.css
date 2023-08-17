@@ -1,25 +1,25 @@
 .checkbox-container {
     display: flex;
     align-items: center;
-    margin-bottom: 8px; /* Optional: To add some space between each checkbox */
+    margin-bottom: 8px; 
 }
 
 .checkbox-container label {
     display: flex;
     align-items: center;
-    gap: 8px; /* Space between checkbox and label */
+    gap: 8px; 
 }
 
 .user-profile-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: calc(100vh - 80px); /* Adjusting for navbar height */
+    height: calc(100vh - 80px);
   }
   
   .user-profile-content {
-    width: 80%; /* You can adjust this value to your liking */
-    max-width: 500px; /* Setting a maximum width */
+    width: 80%; 
+    max-width: 500px;
     background-color: #fff;
     border-radius: 8px;
     padding: 20px 40px;

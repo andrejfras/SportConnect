@@ -1,20 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { db } from './firebase';  // Ensure you've exported Firestore from firebase.js
-import { collection, query, getDocs } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from './firebase';
+import { attendEvent } from './firebaseOps';
 
-function EventsList() {
-    const [events, setEvents] = useState([]);
+function EventsList({ events: eventsProp, currentUser }) {
+    const [allEvents, setAllEvents] = useState([]);  
 
     useEffect(() => {
         const fetchEvents = async () => {
-            const eventsQuery = query(collection(db, "events"));
-            const querySnapshot = await getDocs(eventsQuery);
-
-            const loadedEvents = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            setEvents(loadedEvents);
+            const eventsSnapshot = await getDocs(collection(db, "events"));
+            setAllEvents(eventsSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })));
         };
 
         fetchEvents();
@@ -22,18 +17,20 @@ function EventsList() {
 
     return (
         <div>
-            <h2>Upcoming Events</h2>
-            <ul>
-                {events.map(event => (
-                    <li key={event.id}>
-                        <h3>{event.title}</h3>
-                        <p>{event.description}</p>
-                        <p>Location: {event.location}</p>
-                        <p>Date & Time: {event.dateTime}</p>
-                        {/* Add button or link to view event details if needed */}
-                    </li>
-                ))}
-            </ul>
+            {allEvents.map(event => (  
+                <div key={event.id}>
+                    <h3>{event.title}</h3>
+                    <p>{event.description}</p>
+                    <p>Location: {event.location}</p>
+                    <p>Date and Time: {event.dateTime}</p>
+                    <p>Number of Attendees: {event.attendees ? event.attendees.length : 0}</p>
+                    {currentUser && !event.attendees.includes(currentUser.uid) && (<button onClick={() => attendEvent(event.id, currentUser)}>Attend</button>)}
+                    {console.log("Event ID:", event.id)}
+                    {console.log("Attendees:", event.attendees)}
+                    {console.log("CurrentUser UID:", currentUser && currentUser.uid)}
+
+                </div>
+            ))}
         </div>
     );
 }

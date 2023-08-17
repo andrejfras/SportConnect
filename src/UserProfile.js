@@ -34,11 +34,9 @@ function App() {
                 
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    // Ensure sports array exists
                     if (!data.sports) {
                         data.sports = [];
                     }
-                    // Ensure location object exists
                     if (!data.location) {
                         data.location = { country: "", city: "" };
                     }
@@ -78,21 +76,19 @@ function App() {
                 ) : (
                     <>
                         <h2>User Profile</h2>
-                        {/* ... (Other Input Fields) ... */}
+                       
                         <input 
                             value={userData.firstName}
                             onChange={e => setUserData(prev => ({ ...prev, firstName: e.target.value }))}
                             placeholder="First Name"
                         />
 
-                        {/* Last Name */}
                         <input 
                             value={userData.lastName}
                             onChange={e => setUserData(prev => ({ ...prev, lastName: e.target.value }))}
                             placeholder="Last Name"
                         />
 
-                        {/* Gender */}
                         <select 
                             value={userData.gender}
                             onChange={e => setUserData(prev => ({ ...prev, gender: e.target.value }))}
@@ -103,7 +99,6 @@ function App() {
                             <option value="other">Other</option>
                         </select>
 
-                        {/* Birth Date */}
                         <input 
                             type="date"
                             value={userData.birthDate}

@@ -12,5 +12,59 @@ body {
   border-radius: 8px;
   padding: 20px 40px;
   box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.1);
-  margin: 2rem auto; /* Adding some margin to the top and bottom */
+  margin: 2rem auto; 
+}
+
+
+.user-sidebar {
+  width: 25%;
+  float: left;
+  padding: 20px;
+  box-sizing: border-box;
+
+}
+
+.events-list {
+  width: 75%;
+  float: right;
+  padding: 20px;
+  box-sizing: border-box;
+
+}
+
+.homepage-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.main-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; 
+  height: 100vh; 
+  padding: 20px; 
+}
+
+.user-sidebar {
+  flex: 1; 
+  max-width: 300px; 
+  margin-right: 20px;
+}
+
+.events-feed {
+  width: 50%;      
+  margin: 0 auto;   
+}
+
+.event {
+  padding: 15px;
+  border-bottom: 1px solid #eaeaea; 
+}
+
+.event:last-child {
+  border-bottom: none; 
+}
+
+.container-or-body {
+  width: 100%;
 }

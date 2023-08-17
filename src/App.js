@@ -8,14 +8,19 @@ import UserProfile from './UserProfile';
 import CreateEvent from './CreateEvent';
 import EventsList from './EventsList';
 import Navbar from './Navbar';
+import UserSidebar from './UserSidebar';
 import { auth, db } from './firebase'; 
-import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore'; 
+import { doc, getDocs, setDoc, deleteDoc, collection } from 'firebase/firestore'; 
+import MyEvents from './MyEvents';
+import {  getEvents, attendEvent, unattendEvent } from './firebaseOps';
+
 
 
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [events, setEvents] = useState([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -24,6 +29,31 @@ function App() {
     });
     return () => unsubscribe();
   }, []);
+
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      const eventsRef = collection(db, "events");
+      const querySnapshot = await getDocs(eventsRef);
+      const eventsData = [];
+      querySnapshot.forEach((doc) => {
+        eventsData.push({ ...doc.data(), id: doc.id });
+      });
+      setEvents(eventsData);
+    };
+
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    const eventsData = await getEvents();
+    setEvents(eventsData);
+  };
+
+  useEffect(() => {
+      fetchEvents();
+  }, []);
+
 
   const handleLogout = () => {
     signOut(auth)
@@ -36,22 +66,53 @@ function App() {
       });
   };
 
+  const handleAttend = (eventId) => {
+    if (!currentUser) {
+        console.error("User not logged in");
+        return;
+    }
+
+    attendEvent(eventId, currentUser)
+        .then(() => {
+            fetchEvents();
+        })
+        .catch(error => {
+            console.error("Error attending event:", error);
+        });
+};
+
+const handleUnattend = (eventId) => {
+    if (!currentUser) {
+        console.error("User not logged in");
+        return;
+    }
+
+    unattendEvent(eventId, currentUser)
+        .then(() => {
+            fetchEvents();
+        })
+        .catch(error => {
+            console.error("Error unattending event:", error);
+        });
+};
+
+
 
   const handleDeleteProfile = async () => {
     if (!window.confirm("Are you sure you want to delete your profile? This action cannot be undone.")) {
-        return;  // Exit the function if the user cancels
+        return; 
     }
 
     try {
         const userRef = doc(db, "users", currentUser.uid);
-        await deleteDoc(userRef); // delete user data from Firestore
+        await deleteDoc(userRef); 
         
-        // Delete user account
+      
         await currentUser.delete();
         console.log("Profile deleted successfully");
     } catch (error) {
         console.error("Error deleting profile: ", error);
-        // Optionally, you can show a notification or error message to the user
+      
     }
 };
 
@@ -67,9 +128,29 @@ function App() {
             <Route path="/profile" element={<UserProfile />} />
             <Route path="/login" element={<div className="container"><Login /></div>} />
             <Route path="/register" element={<div className="container"><Register /></div>} />
-            <Route path="/create-event" element={<CreateEvent />} />
-            <Route path="/events" element={<EventsList />} />
-            <Route path="/" element={currentUser ? <div>User is logged in.</div> : <div className="container">Please log in or register.</div>} />
+            <Route path="/events" element={<EventsList currentUser={currentUser} />} />
+            <Route path="/" element={currentUser ?  
+              <div className="events-feed">
+              {events.map(event => (
+              <div key={event.id} className="event">
+                <h3>{event.title}</h3>
+                <p>{event.description}</p>
+                <p>{event.location}</p>
+                <p>{event.dateTime}</p>
+                <p>Attendees: {event.attendees.length}</p>
+                {
+                event.attendees.includes(currentUser.uid) ? 
+                <button onClick={() => handleUnattend(event.id)}>Unattend</button> :
+                <button onClick={() => handleAttend(event.id)}>Attend</button>}
+              </div>
+              ))}
+            </div> : 
+              <div className="container">Please log in or register.
+              </div>
+            } />
+            <Route path="/create-event" element={currentUser ? <CreateEvent /> : <Navigate to="/login" replace />} />
+            <Route path="/my-events" element={<MyEvents currentUser={currentUser} />} />
+            
           </Routes>
         </div>
       </div>
