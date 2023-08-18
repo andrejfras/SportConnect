@@ -1,5 +1,5 @@
 import { db } from './firebase'; 
-import { doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { doc, updateDoc, arrayUnion, arrayRemove, deleteDoc } from 'firebase/firestore';
 import { collection, getDocs } from 'firebase/firestore';
 
 export const getEvents = async () => {
@@ -26,3 +26,10 @@ export const unattendEvent = async (eventId, currentUser) => {
         attendees: arrayRemove(currentUser.uid)
     });
 };
+
+
+export const deleteEvent = async (eventId) => {
+    const eventRef = doc(db, 'events', eventId);
+    await deleteDoc(eventRef);
+};
+

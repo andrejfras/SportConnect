@@ -1,21 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from './firebase';
-import { unattendEvent } from './firebaseOps';
+import { deleteEvent } from './firebaseOps';
 
 function MyEvents({ currentUser }) {
     const [myEvents, setMyEvents] = useState([]);
-
-    const handleUnattend = (eventId) => {
-        unattendEvent(eventId, currentUser)
-            .then(() => {
-                
-                setMyEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
-            })
-            .catch(error => {
-                console.error("Error unattending event:", error);
-            });
-    }
 
     useEffect(() => {
         const fetchMyEvents = async () => {
@@ -33,6 +22,17 @@ function MyEvents({ currentUser }) {
         fetchMyEvents();
     }, [currentUser]);
 
+    const handleDelete = (eventId) => {
+        deleteEvent(eventId)
+            .then(() => {
+                // Remove the event from the local state
+                setMyEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
+            })
+            .catch(error => {
+                console.error("Error deleting event:", error);
+            });
+    };
+
     return (
         <div className="my-events">
             <h2>My Events</h2>
@@ -43,7 +43,12 @@ function MyEvents({ currentUser }) {
                         <p>{event.description}</p>
                         <p>{event.location}</p>
                         <p>{event.dateTime}</p>
-                        <button onClick={() => handleUnattend(event.id)}>Unattend</button>
+                        {event.creator !== currentUser.uid && (
+                            <button onClick={() => handleDelete(event.id)}>Unattend</button>
+                        )}
+                        {event.creator === currentUser.uid && (
+                            <button onClick={() => handleDelete(event.id)}>Delete</button>
+                        )}
                     </li>
                 ))}
             </ul>

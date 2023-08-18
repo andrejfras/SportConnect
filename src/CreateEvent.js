@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { db } from './firebase'; 
 import { collection, addDoc } from 'firebase/firestore';
+import { db } from './firebase';
 import "./CreateEvent.css"
 
-function CreateEvent() {
+function CreateEvent({ currentUser }) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [location, setLocation] = useState('');
@@ -11,27 +11,28 @@ function CreateEvent() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // Construct the new event object
+        const newEvent = {
+            title,
+            description,
+            location,
+            dateTime,
+            attendees: [currentUser.uid],
+            creator: currentUser.uid  // Set the creator ID here
+        };
 
-    
         try {
-            await addDoc(collection(db, "events"), {
-                title,
-                description,
-                location,
-                dateTime,
-                creator: 'TODO: Add user ID here', 
-                attendees: []
-            });
-            console.log("Event created successfully!");
+            await addDoc(collection(db, 'events'), newEvent);
+            // You might want to reset the form fields or navigate the user elsewhere
+            setTitle('');
+            setDescription('');
+            setLocation('');
+            setDateTime('');
         } catch (error) {
-            console.error("Error creating event: ", error);
+            console.error("Error adding event:", error);
+            // Handle the error, maybe show an error message to the user
         }
-
-       
-        setTitle('');
-        setDescription('');
-        setLocation('');
-        setDateTime('');
     };
 
     return (

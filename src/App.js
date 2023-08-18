@@ -13,7 +13,7 @@ import { auth, db } from './firebase';
 import { doc, getDocs, setDoc, deleteDoc, collection } from 'firebase/firestore'; 
 import MyEvents from './MyEvents';
 import {  getEvents, attendEvent, unattendEvent } from './firebaseOps';
-
+import { deleteEvent } from './firebaseOps';
 
 
 
@@ -79,9 +79,9 @@ function App() {
         .catch(error => {
             console.error("Error attending event:", error);
         });
-};
+  };
 
-const handleUnattend = (eventId) => {
+  const handleUnattend = (eventId) => {
     if (!currentUser) {
         console.error("User not logged in");
         return;
@@ -94,7 +94,7 @@ const handleUnattend = (eventId) => {
         .catch(error => {
             console.error("Error unattending event:", error);
         });
-};
+  };
 
 
 
@@ -114,6 +114,15 @@ const handleUnattend = (eventId) => {
         console.error("Error deleting profile: ", error);
       
     }
+  };
+
+  const handleDelete = async (eventId) => {
+    try {
+        await deleteEvent(eventId);
+        setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
+    } catch (error) {
+        console.error("Error deleting event:", error);
+    }
 };
 
 
@@ -121,40 +130,55 @@ const handleUnattend = (eventId) => {
 
   return (
     <Router>
-      <div className="app">
+    <div className="app">
         <Navbar currentUser={currentUser} handleLogout={handleLogout} />
         <div className="main-content">
-          <Routes>
-            <Route path="/profile" element={<UserProfile />} />
-            <Route path="/login" element={<div className="container"><Login /></div>} />
-            <Route path="/register" element={<div className="container"><Register /></div>} />
-            <Route path="/events" element={<EventsList currentUser={currentUser} />} />
-            <Route path="/" element={currentUser ?  
-              <div className="events-feed">
-              {events.map(event => (
-              <div key={event.id} className="event">
-                <h3>{event.title}</h3>
-                <p>{event.description}</p>
-                <p>{event.location}</p>
-                <p>{event.dateTime}</p>
-                <p>Attendees: {event.attendees.length}</p>
-                {
-                event.attendees.includes(currentUser.uid) ? 
-                <button onClick={() => handleUnattend(event.id)}>Unattend</button> :
-                <button onClick={() => handleAttend(event.id)}>Attend</button>}
-              </div>
-              ))}
-            </div> : 
-              <div className="container">Please log in or register.
-              </div>
-            } />
-            <Route path="/create-event" element={currentUser ? <CreateEvent /> : <Navigate to="/login" replace />} />
-            <Route path="/my-events" element={<MyEvents currentUser={currentUser} />} />
-            
-          </Routes>
+            <Routes>
+                <Route path="/profile" element={<UserProfile />} />
+                <Route path="/login" element={<div className="container"><Login /></div>} />
+                <Route path="/register" element={<div className="container"><Register /></div>} />
+                <Route path="/events" element={<EventsList currentUser={currentUser} />} />
+                <Route path="/" element={currentUser ? (
+                    <div className="events-feed">
+                    {events.map(event => (
+                        <div key={event.id} className="event">
+                            <h3>{event.title}</h3>
+                            <p>{event.description}</p>
+                            <p>{event.location}</p>
+                            <p>{event.dateTime}</p>
+                            <p>Attendees: {event.attendees.length}</p>
+
+                            {/* Show the Attend/Unattend button only if the user is not the creator of the event */}
+                            {event.creator !== currentUser.uid && 
+                                (
+                                    event.attendees.includes(currentUser.uid) ? 
+                                    <button onClick={() => handleUnattend(event.id)}>Unattend</button> :
+                                    <button onClick={() => handleAttend(event.id)}>Attend</button>
+                                )
+                            }
+
+                            {/* Display Delete button only if the current user is the creator of the event */}
+                            {currentUser && event.creator === currentUser.uid && (
+                                <>
+                                    <p>Event Creator: {event.creator}</p>
+                                    <p>Current User: {currentUser.uid}</p>
+                                    <button onClick={() => handleDelete(event.id)}>Delete</button>
+                                </>
+                            )}
+                        </div>
+                    ))}
+
+                  </div>
+                ) : (
+                    <div className="container">Please log in or register.</div>
+                )} />
+                <Route path="/create-event" element={currentUser ? <CreateEvent currentUser={currentUser} /> : <Navigate to="/login" replace />} />
+                <Route path="/my-events" element={<MyEvents currentUser={currentUser} />} />
+            </Routes>
         </div>
-      </div>
-    </Router>
+    </div>
+</Router>
+
   );
 }
 
